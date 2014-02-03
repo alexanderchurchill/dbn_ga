@@ -19,6 +19,7 @@ from theano.tensor.shared_randomstreams import RandomStreams
 
 #from utils import tile_raster_images
 from logistic_sgd import load_data
+import pdb
 
 
 class RBM(object):
@@ -110,7 +111,7 @@ class RBM(object):
             return mean_v, v
         def free_energy(v):
             return -(v * self.bv).sum() - T.log(1 + T.exp(T.dot(v, self.W) + self.bh)).sum()
-
+            
         chain, updates = theano.scan(lambda v: gibbs_step(v)[1], outputs_info=[self.input],
                                      n_steps=k)
         v_sample = chain[-1]
