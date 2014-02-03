@@ -119,7 +119,7 @@ class RBM(object):
         v_sample = chain[-1]
         consider_constant = v_sample
 
-        mean_v = gibbs_step(v_sample)[0]
+        mean_v = self.gibbs_step(v_sample)[0]
         monitor = T.xlogx.xlogy0(self.input, mean_v) + T.xlogx.xlogy0(1 - self.input, 1 - mean_v)
         monitor = monitor.sum() / self.input.shape[0]   
         
