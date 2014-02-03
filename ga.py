@@ -132,6 +132,11 @@ class GA(object):
         self.genotypes_history.add_genotypes(pop)
         self.genotypes_history.get_and_save_top_x(0.2,"{0}experiment".format(path),experiment,0)
         #self.train_RBM()
+        fitnesses_file = open("{0}experiment_{1}/fitnesses_temp.dat".format(path,experiment),"w")
+        fitnesses.close()
+        fitnesses_file = open("{0}experiment_{1}/fitnesses_temp.dat".format(path,experiment),"a")
+        fitnesses_file.write(str([i.fitness.values[0] for i in individuals]))
+        fitnesses_file.write("\n")
 
         print("  Evaluated %i individuals" % len(pop))
         # Begin the evolution
@@ -175,8 +180,10 @@ class GA(object):
             self.population_snapshots.append(copy.deepcopy(pop))
             self.genotypes_history.add_genotypes(pop)
             self.genotypes_history.get_and_save_top_x(0.2,"{0}experiment".format(path),experiment,g+1)
-            if len(self.genotypes_history.top_x) > 2000:
+            if len(self.genotypes_history.top_x) > 2000+:
                 self.train_RBM()
+            fitnesses_file.write(str([i.fitness.values[0] for i in individuals]))
+            fitnesses_file.write("\n")
         print("-- End of (successful) evolution --")
         self.save_fitnesses(self.population_snapshots,"{0}experiment".format(path),experiment)
         return pop
@@ -213,7 +220,7 @@ class GA(object):
         train_set = SequenceDataset(train_data,batch_size=20,number_batches=None)
         inputs,params,cost,monitor,updates,consider_constant = self.RBM.build_RBM(k=k)
         sgd_optimizer(params,[inputs],cost,train_set,updates_old=updates,monitor=monitor,
-                      consider_constant=[consider_constant],lr=0.1,num_epochs=200)
+                      consider_constant=[consider_constant],lr=0.1,num_epochs=10)
 
     def sample_RBM(self,k=20):
         v,v_sample,updates = self.RBM.sample_RBM(k=k)
@@ -383,12 +390,13 @@ class Experiment(object):
             elif test == "knapsack_hard":
                 self.ga = MDimKnapsack("weing8.pkl")
 
-    def run(self):
+    def run(self,test,ga):
         for i in range(self.start,self.end):
+            self.set_experiment(test,ga)
             path = "results/{0}/".format(self.experiment_name)
             ensure_dir("{0}experiment_{1}/".format(path,i))
             self.ga.run(path = path,experiment=i)
 
 if __name__ == "__main__":
     e = Experiment("knapsack_hard",no_runs=5,start=0,end=5,test="knapsack_hard")
-    e.run()
+    e.run(test="knapsack_hard",ga=None)
