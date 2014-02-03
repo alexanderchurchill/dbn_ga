@@ -109,7 +109,7 @@ class RBM(object):
                              dtype=theano.config.floatX)
             return mean_v, v
         def free_energy(v):
-            return -(v * self.bv).sum() - T.log(1 + T.exp(T.dot(v, W) + self.bh)).sum()
+            return -(v * self.bv).sum() - T.log(1 + T.exp(T.dot(v, self.W) + self.bh)).sum()
 
         chain, updates = theano.scan(lambda v: gibbs_step(v)[1], outputs_info=[self.input],
                                      n_steps=k)
