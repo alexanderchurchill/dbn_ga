@@ -175,7 +175,7 @@ class GA(object):
             self.population_snapshots.append(copy.deepcopy(pop))
             self.genotypes_history.add_genotypes(pop)
             self.genotypes_history.get_and_save_top_x(0.2,"{0}experiment".format(path),experiment,g+1)
-            if len(self.genotypes_history.top_x) > 100:
+            if len(self.genotypes_history.top_x) > 2000:
                 self.train_RBM()
         print("-- End of (successful) evolution --")
         self.save_fitnesses(self.population_snapshots,"{0}experiment".format(path),experiment)
@@ -227,8 +227,8 @@ class MDimKnapsack(GA):
         creator.create("FitnessMax", base.Fitness, weights=(1.0,))
         creator.create("Individual", list, fitness=creator.FitnessMax)
         self.pop_size = 500
-        self.mut_rate = 0.2
-        self.cross_rate = 0.9
+        self.mut_rate = 1.0
+        self.cross_rate = 0.0
         self.generations = 5000
 
         self.knapsack = pickle.load(open(knapsack_file))
@@ -264,11 +264,9 @@ class MDimKnapsack(GA):
 
     def mutate(self,individual, indpb = 0.01):
         individual = np.array(individual).reshape(1,-1)
-        output = self.sample_from_RBM(np.array(individual))
-        print output
-        print output.shape  
+        output = self.sample_from_RBM(np.array(individual))  
         individual[:] = output[0][:]
-        return individual,
+        return individual
 
 class Sphere(GA):
     def __init__(self):
