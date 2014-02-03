@@ -205,7 +205,7 @@ class GA(object):
 
     def train_RBM(self,k=20):
         train_data = self.genotypes_history.top_x_percent()
-        train_set = SequenceDataset(train_data,batch_size=20)
+        train_set = SequenceDataset(train_data,batch_size=20,number_batches=None)
         inputs,params,cost,monitor,updates,consider_constant = self.RBM.build_RBM(k=k)
         sgd_optimizer(params,inputs,cost,train_set,updates_old=updates,monitor=monitor,
                       consider_constant=consider_constant,lr=0.1,num_epochs=200)
