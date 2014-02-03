@@ -4,6 +4,8 @@ from deap import base
 from deap import creator
 from deap import tools
 from deap import benchmarks
+from rbm import RBM
+from optimizers import sgd_optimizer
 
 import numpy as np
 import matplotlib.pylab as plt
@@ -84,6 +86,8 @@ class GA(object):
         self.cross_rate = 0.9
         self.generations = 100
         self.tournament_size = 3
+        self.RBM = RBM(n_visible=100,n_hidden=50) 
+        pdb.set_trace()#Init RBM object
         creator.create("FitnessMax", base.Fitness, weights=(1.0,))
         creator.create("Individual", list, fitness=creator.FitnessMax)
 
@@ -192,6 +196,13 @@ class GA(object):
         avgs = np.mean(fitnesses,axis=1)
         plt.plot(avgs)
         plt.show()
+
+    def train_RBM(self,k=20):
+        train_set = 
+        inputs,params,cost,monitor,updates,consider_constant = self.RBM.build_RBM(k=k)
+        sgd_optimizer(params,inputs,cost,train_set,updates_old=updates,monitor=monitor,
+                      consider_constant=consider_constant,lr=0.1,num_epochs=200)
+
 
 class MDimKnapsack(GA):
     def __init__(self,knapsack_file="weing8.pkl"):
