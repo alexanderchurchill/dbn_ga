@@ -263,10 +263,10 @@ class MDimKnapsack(GA):
             return np.sum(np.array(knapsack.values)*individual),
 
     def mutate(self,individual, indpb = 0.01):
-        individual = individual.reshape(1,-1)
+        individual = np.array(individual).reshape(1,-1)
         output = self.sample_from_RBM(np.array(individual))
         print output
-        print output.shape
+        print output.shape  
         individual[:] = output[0][:]
         return individual,
 
