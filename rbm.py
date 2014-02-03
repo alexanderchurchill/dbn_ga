@@ -99,7 +99,7 @@ class RBM(object):
         # other than shared variables created in this function.
         self.params = [self.W, self.bh, self.bv]
     
-    def build_rbm(self,k=20):
+    def build_RBM(self,k=20):
         def gibbs_step(v):
             mean_h = T.nnet.sigmoid(T.dot(v, self.W) + self.bh)
             h = self.theano_rng.binomial(size=mean_h.shape, n=1, p=mean_h,
