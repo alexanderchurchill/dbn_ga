@@ -102,10 +102,10 @@ class RBM(object):
     def build_rbm(self,k=20):
         def gibbs_step(v):
             mean_h = T.nnet.sigmoid(T.dot(v, self.W) + self.bh)
-            h = rng.binomial(size=mean_h.shape, n=1, p=mean_h,
+            h = self.theano_rng.binomial(size=mean_h.shape, n=1, p=mean_h,
                              dtype=theano.config.floatX)
             mean_v = T.nnet.sigmoid(T.dot(h, self.W.T) + self.bv)
-            v = rng.binomial(size=mean_v.shape, n=1, p=mean_v,
+            v = self.theano_rng.binomial(size=mean_v.shape, n=1, p=mean_v,
                              dtype=theano.config.floatX)
             return mean_v, v
         def free_energy(v):
