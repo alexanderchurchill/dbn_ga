@@ -95,6 +95,7 @@ class GA(object):
         self.tournament_size = 3
         self.N = 100
         self.RBM = RBM(n_visible=105,n_hidden=50) 
+        self.sample_RBM()
         creator.create("FitnessMax", base.Fitness, weights=(1.0,))
         creator.create("Individual", list, fitness=creator.FitnessMax)
 
