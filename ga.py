@@ -180,7 +180,7 @@ class GA(object):
             self.population_snapshots.append(copy.deepcopy(pop))
             self.genotypes_history.add_genotypes(pop)
             self.genotypes_history.get_and_save_top_x(0.2,"{0}experiment".format(path),experiment,g+1)
-            if len(self.genotypes_history.top_x) > 2000+:
+            if len(self.genotypes_history.top_x) > 2000:
                 self.train_RBM()
             fitnesses_file.write(str([i.fitness.values[0] for i in individuals]))
             fitnesses_file.write("\n")
