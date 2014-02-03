@@ -92,12 +92,12 @@ class RBM(object):
             self.input = T.matrix('input')
 
         self.W = W
-        self.hbias = hbias
-        self.vbias = vbias
+        self.bh = hbias
+        self.bv = vbias
         self.theano_rng = theano_rng
         # **** WARNING: It is not a good idea to put things in this list
         # other than shared variables created in this function.
-        self.params = [self.W, self.hbias, self.vbias]
+        self.params = [self.W, self.bh, self.bv]
     
     def build_rbm(self,k=20):
         def gibbs_step(v):
