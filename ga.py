@@ -133,7 +133,7 @@ class GA(object):
         self.genotypes_history.get_and_save_top_x(0.2,"{0}experiment".format(path),experiment,0)
         #self.train_RBM()
         fitnesses_file = open("{0}experiment_{1}/fitnesses_temp.dat".format(path,experiment),"w")
-        fitnesses.close()
+        fitnesses_file.close()
         fitnesses_file = open("{0}experiment_{1}/fitnesses_temp.dat".format(path,experiment),"a")
         fitnesses_file.write(str([i.fitness.values[0] for i in individuals]))
         fitnesses_file.write("\n")
