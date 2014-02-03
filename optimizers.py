@@ -22,7 +22,6 @@ def sgd_optimizer(p,inputs,costs,train_set,updates_old=None,monitor=None,conside
   lr: Learning rate for SGD
   '''
   best_cost = numpy.inf
-  pdb.set_trace()
   g = T.grad(costs,p,consider_constant=consider_constant)
   updates = dict((i, i - lr*j) for i, j in zip(p, g))
   if updates_old:

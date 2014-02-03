@@ -12,6 +12,7 @@ import numpy as np
 import matplotlib as mpl
 mpl.use('Agg')
 import matplotlib.pylab as plt
+import theano
 from custom_dataset import SequenceDataset
 import pdb
 
@@ -92,6 +93,7 @@ class GA(object):
         self.cross_rate = 0.9
         self.generations = 100
         self.tournament_size = 3
+        self.N = 100
         self.RBM = RBM(n_visible=28,n_hidden=50) 
         creator.create("FitnessMax", base.Fitness, weights=(1.0,))
         creator.create("Individual", list, fitness=creator.FitnessMax)
@@ -128,7 +130,7 @@ class GA(object):
         self.population_snapshots.append(copy.deepcopy(pop))
         self.genotypes_history.add_genotypes(pop)
         self.genotypes_history.get_and_save_top_x(0.2,"{0}experiment".format(path),experiment,0)
-        self.train_RBM()
+        #self.train_RBM()
 
         print("  Evaluated %i individuals" % len(pop))
         # Begin the evolution
@@ -172,7 +174,8 @@ class GA(object):
             self.population_snapshots.append(copy.deepcopy(pop))
             self.genotypes_history.add_genotypes(pop)
             self.genotypes_history.get_and_save_top_x(0.2,"{0}experiment".format(path),experiment,g+1)
-            self.train_RBM()
+            if len(self.genotypes_history.top_x) > 2000:
+                self.train_RBM()
         print("-- End of (successful) evolution --")
         self.save_fitnesses(self.population_snapshots,"{0}experiment".format(path),experiment)
         return pop
@@ -206,12 +209,14 @@ class GA(object):
 
     def train_RBM(self,k=20):
         train_data = self.genotypes_history.top_x_percent()
-        pdb.set_trace()
         train_set = SequenceDataset(train_data,batch_size=20,number_batches=None)
         inputs,params,cost,monitor,updates,consider_constant = self.RBM.build_RBM(k=k)
         sgd_optimizer(params,[inputs],cost,train_set,updates_old=updates,monitor=monitor,
                       consider_constant=[consider_constant],lr=0.1,num_epochs=200)
 
+    def sample_RBM(self,k=20):
+        v,v_sample,updates = self.RBM.sample_RBM(k=k)
+        self.sample_from_RBM = theano.function([v],v_sample,updates=updates)
 
 class MDimKnapsack(GA):
     def __init__(self,knapsack_file="weing8.pkl"):
@@ -221,10 +226,10 @@ class MDimKnapsack(GA):
         self.pop_size = 500
         self.mut_rate = 0.2
         self.cross_rate = 0.9
-        self.generations = 1000
+        self.generations = 5000
 
         self.knapsack = pickle.load(open(knapsack_file))
-
+        self.N = int(self.knapsack.items)
         self.toolbox = base.Toolbox()
         # Attribute generator
         self.toolbox.register("attr_bool", random.randint, 0, 1)
@@ -236,7 +241,7 @@ class MDimKnapsack(GA):
         # Operator registering
         self.toolbox.register("evaluate", self.fitness_function, knapsack = self.knapsack)
         self.toolbox.register("mate", tools.cxTwoPoints)
-        self.toolbox.register("mutate", self.mutate, indpb=float(1/self.knapsack.items))
+        self.toolbox.register("mutate", self.mutate, indpb=float(1/self.N))
         self.toolbox.register("select", tools.selTournament, tournsize=self.tournament_size)
 
         self.genotypes_history = Genotypes(min=False)
@@ -377,5 +382,5 @@ class Experiment(object):
             self.ga.run(path = path,experiment=i)
 
 if __name__ == "__main__":
-    e = Experiment("knapsack_easy",no_runs=5,start=0,end=5,test="knapsack_easy")
+    e = Experiment("knapsack_easy",no_runs=5,start=0,end=5,test="knapsack_hard")
     e.run()

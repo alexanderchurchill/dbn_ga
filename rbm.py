@@ -100,19 +100,21 @@ class RBM(object):
         # other than shared variables created in this function.
         self.params = [self.W, self.bh, self.bv]
     
+    def gibbs_step(self,v):
+        mean_h = T.nnet.sigmoid(T.dot(v, self.W) + self.bh)
+        h = self.theano_rng.binomial(size=mean_h.shape, n=1, p=mean_h,
+                         dtype=theano.config.floatX)
+        mean_v = T.nnet.sigmoid(T.dot(h, self.W.T) + self.bv)
+        v = self.theano_rng.binomial(size=mean_v.shape, n=1, p=mean_v,
+                         dtype=theano.config.floatX)
+        return mean_v, v
+   
+    def free_energy(self,v):
+        return -(v * self.bv).sum() - T.log(1 + T.exp(T.dot(v, self.W) + self.bh)).sum()
+
+
     def build_RBM(self,k=20):
-        def gibbs_step(v):
-            mean_h = T.nnet.sigmoid(T.dot(v, self.W) + self.bh)
-            h = self.theano_rng.binomial(size=mean_h.shape, n=1, p=mean_h,
-                             dtype=theano.config.floatX)
-            mean_v = T.nnet.sigmoid(T.dot(h, self.W.T) + self.bv)
-            v = self.theano_rng.binomial(size=mean_v.shape, n=1, p=mean_v,
-                             dtype=theano.config.floatX)
-            return mean_v, v
-        def free_energy(v):
-            return -(v * self.bv).sum() - T.log(1 + T.exp(T.dot(v, self.W) + self.bh)).sum()
-            
-        chain, updates = theano.scan(lambda v: gibbs_step(v)[1], outputs_info=[self.input],
+        chain, updates = theano.scan(lambda v: self.gibbs_step(v)[1], outputs_info=[self.input],
                                      n_steps=k)
         v_sample = chain[-1]
         consider_constant = v_sample
@@ -121,5 +123,11 @@ class RBM(object):
         monitor = T.xlogx.xlogy0(self.input, mean_v) + T.xlogx.xlogy0(1 - self.input, 1 - mean_v)
         monitor = monitor.sum() / self.input.shape[0]   
         
-        cost = (free_energy(self.input) - free_energy(v_sample)) / self.input.shape[0]
+        cost = (self.free_energy(self.input) - self.free_energy(v_sample)) / self.input.shape[0]
         return self.input,self.params, cost, monitor, updates, consider_constant
+
+    def sample_RBM(self,k=20):
+        chain, updates = theano.scan(lambda v: self.gibbs_step(v)[1], outputs_info=[self.input],
+                                     n_steps=k)
+        v_sample = chain[-1]
+        return self.input,v_sample,updates
