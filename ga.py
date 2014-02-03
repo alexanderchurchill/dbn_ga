@@ -12,7 +12,7 @@ import numpy as np
 import matplotlib as mpl
 mpl.use('Agg')
 import matplotlib.pylab as plt
-from datasets import SequenceDataset
+from custom_dataset import SequenceDataset
 import pdb
 
 def ensure_dir(f):
