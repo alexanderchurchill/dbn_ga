@@ -13,6 +13,7 @@ import matplotlib as mpl
 mpl.use('Agg')
 import matplotlib.pylab as plt
 from datasets import SequenceDataset
+import pdb
 
 def ensure_dir(f):
     d = os.path.dirname(f)
