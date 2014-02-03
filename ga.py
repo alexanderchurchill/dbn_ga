@@ -263,9 +263,11 @@ class MDimKnapsack(GA):
             return np.sum(np.array(knapsack.values)*individual),
 
     def mutate(self,individual, indpb = 0.01):
+        individual = individual.reshape(1,-1)
         output = self.sample_from_RBM(np.array(individual))
-        individual[:] = output[:]
-        individual = individual.reshape[1,:]
+        print output
+        print output.shape
+        individual[:] = output[0][:]
         return individual,
 
 class Sphere(GA):
