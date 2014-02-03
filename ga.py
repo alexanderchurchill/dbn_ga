@@ -135,7 +135,7 @@ class GA(object):
         fitnesses_file = open("{0}experiment_{1}/fitnesses_temp.dat".format(path,experiment),"w")
         fitnesses_file.close()
         fitnesses_file = open("{0}experiment_{1}/fitnesses_temp.dat".format(path,experiment),"a")
-        fitnesses_file.write(str([i.fitness.values[0] for i in individuals]))
+        fitnesses_file.write(str([i.fitness.values[0] for i in pop]))
         fitnesses_file.write("\n")
 
         print("  Evaluated %i individuals" % len(pop))
