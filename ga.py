@@ -94,7 +94,7 @@ class GA(object):
         self.generations = 100
         self.tournament_size = 3
         self.N = 100
-        self.RBM = RBM(n_visible=28,n_hidden=50) 
+        self.RBM = RBM(n_visible=105,n_hidden=50) 
         creator.create("FitnessMax", base.Fitness, weights=(1.0,))
         creator.create("Individual", list, fitness=creator.FitnessMax)
 
@@ -174,7 +174,7 @@ class GA(object):
             self.population_snapshots.append(copy.deepcopy(pop))
             self.genotypes_history.add_genotypes(pop)
             self.genotypes_history.get_and_save_top_x(0.2,"{0}experiment".format(path),experiment,g+1)
-            if len(self.genotypes_history.top_x) > 2000:
+            if len(self.genotypes_history.top_x) > 100:
                 self.train_RBM()
         print("-- End of (successful) evolution --")
         self.save_fitnesses(self.population_snapshots,"{0}experiment".format(path),experiment)
@@ -218,6 +218,8 @@ class GA(object):
         v,v_sample,updates = self.RBM.sample_RBM(k=k)
         self.sample_from_RBM = theano.function([v],v_sample,updates=updates)
 
+
+
 class MDimKnapsack(GA):
     def __init__(self,knapsack_file="weing8.pkl"):
         super(MDimKnapsack, self).__init__()
@@ -259,6 +261,10 @@ class MDimKnapsack(GA):
         else:
             return np.sum(np.array(knapsack.values)*individual),
 
+    def mutate(self,individual, indpb = 0.01):
+        output = self.sample_from_RBM(np.array(individual))
+        individual[:] = output[:]
+        return individual,
 
 class Sphere(GA):
     def __init__(self):
@@ -382,5 +388,5 @@ class Experiment(object):
             self.ga.run(path = path,experiment=i)
 
 if __name__ == "__main__":
-    e = Experiment("knapsack_easy",no_runs=5,start=0,end=5,test="knapsack_hard")
+    e = Experiment("knapsack_hard",no_runs=5,start=0,end=5,test="knapsack_hard")
     e.run()
