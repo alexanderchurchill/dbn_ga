@@ -118,7 +118,7 @@ class RBM(object):
 
         mean_v = gibbs_step(v_sample)[0]
         monitor = T.xlogx.xlogy0(self.input, mean_v) + T.xlogx.xlogy0(1 - self.input, 1 - mean_v)
-        monitor = monitor.sum() / v.shape[0]   
+        monitor = monitor.sum() / self.input.shape[0]   
         
-        cost = (free_energy(self.input) - free_energy(v_sample)) / v.shape[0]
+        cost = (free_energy(self.input) - free_energy(v_sample)) / self.input.shape[0]
         return self.input,self.params, cost, monitor, updates, consider_constant
