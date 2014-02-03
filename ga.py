@@ -92,7 +92,7 @@ class GA(object):
         self.cross_rate = 0.9
         self.generations = 100
         self.tournament_size = 3
-        self.RBM = RBM(n_visible=100,n_hidden=50) 
+        self.RBM = RBM(n_visible=28,n_hidden=50) 
         creator.create("FitnessMax", base.Fitness, weights=(1.0,))
         creator.create("Individual", list, fitness=creator.FitnessMax)
 
