@@ -36,8 +36,8 @@ class SequenceDataset:
       for i in xrange(int(num_batches)):
         start = i*batch_size
         end = (i+1)*batch_size
-        if end > sequence.shape[0]:
-          end = sequence.shape[0]
+        if end > data.shape[0]:
+          end = data.shape[0]
         self.items.append([data[start:end]])
     
 
