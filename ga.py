@@ -9,6 +9,7 @@ from optimizers import sgd_optimizer
 
 import numpy as np
 import matplotlib.pylab as plt
+from datasets import SequenceDataset
 
 def ensure_dir(f):
     d = os.path.dirname(f)
@@ -68,6 +69,7 @@ class Genotypes(object):
         top_x = self.top_x_percent(x)
         self.top_x_genotypes_to_file(top_x,path=path,experiment=experiment,generation=generation)
 
+
     def top_x_genotypes_to_file(self,top_20,path="experiments",experiment=0,generation=0):
         np.savetxt("{0}_{1}/top_genotypes_{2}.dat".format(path,experiment,generation),top_20)
         np.savetxt("{0}_{1}/top_genotypes_fitnesses_{2}.dat".format(path,experiment,generation),[f.fitness.values[0] for f in top_20])
@@ -87,7 +89,6 @@ class GA(object):
         self.generations = 100
         self.tournament_size = 3
         self.RBM = RBM(n_visible=100,n_hidden=50) 
-        pdb.set_trace()#Init RBM object
         creator.create("FitnessMax", base.Fitness, weights=(1.0,))
         creator.create("Individual", list, fitness=creator.FitnessMax)
 
@@ -123,6 +124,7 @@ class GA(object):
         self.population_snapshots.append(copy.deepcopy(pop))
         self.genotypes_history.add_genotypes(pop)
         self.genotypes_history.get_and_save_top_x(0.2,"{0}experiment".format(path),experiment,0)
+        self.train_RBM()
 
         print("  Evaluated %i individuals" % len(pop))
         # Begin the evolution
@@ -166,6 +168,7 @@ class GA(object):
             self.population_snapshots.append(copy.deepcopy(pop))
             self.genotypes_history.add_genotypes(pop)
             self.genotypes_history.get_and_save_top_x(0.2,"{0}experiment".format(path),experiment,g+1)
+            self.train_RBM()
         print("-- End of (successful) evolution --")
         self.save_fitnesses(self.population_snapshots,"{0}experiment".format(path),experiment)
         return pop
@@ -198,7 +201,8 @@ class GA(object):
         plt.show()
 
     def train_RBM(self,k=20):
-        train_set = 
+        train_data = self.genotypes_history.top_x_percent()
+        train_set = SequenceDataset(train_data,batch_size=20)
         inputs,params,cost,monitor,updates,consider_constant = self.RBM.build_RBM(k=k)
         sgd_optimizer(params,inputs,cost,train_set,updates_old=updates,monitor=monitor,
                       consider_constant=consider_constant,lr=0.1,num_epochs=200)
