@@ -8,6 +8,9 @@ from rbm import RBM
 from optimizers import sgd_optimizer
 
 import numpy as np
+
+import matplotlib as mpl
+mpl.use('Agg')
 import matplotlib.pylab as plt
 from datasets import SequenceDataset
 
