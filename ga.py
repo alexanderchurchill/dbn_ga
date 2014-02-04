@@ -14,6 +14,7 @@ mpl.use('Agg')
 import matplotlib.pylab as plt
 import theano
 from custom_dataset import SequenceDataset
+from denoising_autoencoder import dA
 import pdb
 
 def ensure_dir(f):
@@ -95,6 +96,9 @@ class GA(object):
         self.tournament_size = 3
         self.N = 100
         self.RBM = RBM(n_visible=105,n_hidden=50) 
+        self.dA = dA(n_visible=105,n_hidden=50)
+        self.dA.build_dA(0.2)
+        self.dA.build_sample_dA()
         self.sample_RBM()
         creator.create("FitnessMax", base.Fitness, weights=(1.0,))
         creator.create("Individual", list, fitness=creator.FitnessMax)
@@ -221,6 +225,14 @@ class GA(object):
         inputs,params,cost,monitor,updates,consider_constant = self.RBM.build_RBM(k=k)
         sgd_optimizer(params,[inputs],cost,train_set,updates_old=updates,monitor=monitor,
                       consider_constant=[consider_constant],lr=0.1,num_epochs=10)
+
+    def train_dA(self,corruption_level=0.2):
+        train_data = self.genotypes_history.top_x_percent()
+        train_set = SequenceDataset(train_data,batch_size=20,number_batches=None)
+        sgd_optimizer(self.dA.params,[self.dA.input],self.cost,train_set,lr=0.1,num_epochs=200)
+
+    def build_sample_dA():
+        self.sample_dA = theano.function([self.dA.input],self.z)
 
     def sample_RBM(self,k=20):
         v,v_sample,updates = self.RBM.sample_RBM(k=k)
