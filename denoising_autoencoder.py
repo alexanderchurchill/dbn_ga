@@ -16,62 +16,62 @@ from logistic_sgd import load_data
 import pdb
 
 class dA(object):
-	"""
-	Denoising Autoencoders
-	"""	
-    def __init__(self, input=None, n_visible=784, n_hidden=500, \
-    	W=None, hbias=None, vbias=None, numpy_rng=None,theano_rng=None):
-	    self.n_visible = n_visible
-	    self.n_hidden = n_hidden
+    """
+    Denoising Autoencoders
+    """ 
+    def __init__(self, input=None, n_visible=784, n_hidden=500,
+        W=None, hbias=None, vbias=None, numpy_rng=None,theano_rng=None):
+        self.n_visible = n_visible
+        self.n_hidden = n_hidden
 
-	    if numpy_rng is None:
-	        # create a number generator
-	        numpy_rng = numpy.random.RandomState(1234)
+        if numpy_rng is None:
+            # create a number generator
+            numpy_rng = numpy.random.RandomState(1234)
 
-	    if theano_rng is None:
-	        theano_rng = RandomStreams(numpy_rng.randint(2 ** 30))
+        if theano_rng is None:
+            theano_rng = RandomStreams(numpy_rng.randint(2 ** 30))
 
-	    if W is None:
-	        # W is initialized with `initial_W` which is uniformely
-	        # sampled from -4*sqrt(6./(n_visible+n_hidden)) and
-	        # 4*sqrt(6./(n_hidden+n_visible)) the output of uniform if
-	        # converted using asarray to dtype theano.config.floatX so
-	        # that the code is runable on GPU
-	        initial_W = numpy.asarray(numpy_rng.uniform(
-	                  low=-4 * numpy.sqrt(6. / (n_hidden + n_visible)),
-	                  high=4 * numpy.sqrt(6. / (n_hidden + n_visible)),
-	                  size=(n_visible, n_hidden)),
-	                  dtype=theano.config.floatX)
-	        # theano shared variables for weights and biases
-	        W = theano.shared(value=initial_W, name='W', borrow=True)
+        if W is None:
+            # W is initialized with `initial_W` which is uniformely
+            # sampled from -4*sqrt(6./(n_visible+n_hidden)) and
+            # 4*sqrt(6./(n_hidden+n_visible)) the output of uniform if
+            # converted using asarray to dtype theano.config.floatX so
+            # that the code is runable on GPU
+            initial_W = numpy.asarray(numpy_rng.uniform(
+                      low=-4 * numpy.sqrt(6. / (n_hidden + n_visible)),
+                      high=4 * numpy.sqrt(6. / (n_hidden + n_visible)),
+                      size=(n_visible, n_hidden)),
+                      dtype=theano.config.floatX)
+            # theano shared variables for weights and biases
+            W = theano.shared(value=initial_W, name='W', borrow=True)
 
-	    if hbias is None:
-	        # create shared variable for hidden units bias
-	        hbias = theano.shared(value=numpy.zeros(n_hidden,
-	                                                dtype=theano.config.floatX),
-	                              name='hbias', borrow=True)
+        if hbias is None:
+            # create shared variable for hidden units bias
+            hbias = theano.shared(value=numpy.zeros(n_hidden,
+                                                    dtype=theano.config.floatX),
+                                  name='hbias', borrow=True)
 
-	    if vbias is None:
-	        # create shared variable for visible units bias
-	        vbias = theano.shared(value=numpy.zeros(n_visible,
-	                                                dtype=theano.config.floatX),
-	                              name='vbias', borrow=True)
+        if vbias is None:
+            # create shared variable for visible units bias
+            vbias = theano.shared(value=numpy.zeros(n_visible,
+                                                    dtype=theano.config.floatX),
+                                  name='vbias', borrow=True)
 
-	    # initialize input layer for standalone RBM or layer0 of DBN
-	    self.input = input
-	    if not input:
-	        self.input = T.matrix('input')
+        # initialize input layer for standalone RBM or layer0 of DBN
+        self.input = input
+        if not input:
+            self.input = T.matrix('input')
 
-	    self.W = W
-	    self.bh = hbias
-	    self.bv = vbias
-	    self.theano_rng = theano_rng
-	    # **** WARNING: It is not a good idea to put things in this list
-	    # other than shared variables created in this function.
-	    self.params = [self.W, self.bh, self.bv]
+        self.W = W
+        self.bh = hbias
+        self.bv = vbias
+        self.theano_rng = theano_rng
+        # **** WARNING: It is not a good idea to put things in this list
+        # other than shared variables created in this function.
+        self.params = [self.W, self.bh, self.bv]
 
 
-	def get_corrupted_input(self, input, corruption_level):
+    def get_corrupted_input(self, input, corruption_level):
        """ This function keeps ``1-corruption_level`` entries of the inputs the same
        and zero-out randomly selected subset of size ``coruption_level``
        Note : first argument of theano.rng.binomial is the shape(size) of
@@ -85,22 +85,22 @@ class dA(object):
        return  self.theano_rng.binomial(size=input.shape, n=1, p=1 - corruption_level) * input
 
 
-	def get_hidden_values(self, input):
-	    """ Computes the values of the hidden layer """
-	    return T.nnet.sigmoid(T.dot(input, self.W) + self.bh)
+    def get_hidden_values(self, input):
+        """ Computes the values of the hidden layer """
+        return T.nnet.sigmoid(T.dot(input, self.W) + self.bh)
 
-	def get_reconstructed_input(self, hidden):
-	    """ Computes the reconstructed input given the values of the hidden layer """
-	    return  T.nnet.sigmoid(T.dot(hidden, self.W) + self.bv)
+    def get_reconstructed_input(self, hidden):
+        """ Computes the reconstructed input given the values of the hidden layer """
+        return  T.nnet.sigmoid(T.dot(hidden, self.W.T) + self.bv)
 
-	def build_dA(self,corruption_level):
+    def build_dA(self,corruption_level):
 
-		self.tilde_input = self.get_corrupted_input(self.input, corruption_level)
-		self.h = self.get_hidden_values(self.tilde_input)
-		self.z = self.get_reconstructed_input(self.h)
-		self.L = -T.sum(self.input * T.log(self.z) + (1 - self.input) * T.log(1 - self.z), axis=1)
-		self.cost = T.mean(self.L)
-		self.sample = self.theano_rng.binomial(size=self.input.shape,n=1,p=self.input)
-	
+        self.tilde_input = self.get_corrupted_input(self.input, corruption_level)
+        self.h = self.get_hidden_values(self.tilde_input)
+        self.z = self.get_reconstructed_input(self.h)
+        self.L = -T.sum(self.input * T.log(self.z) + (1 - self.input) * T.log(1 - self.z), axis=1)
+        self.cost = T.mean(self.L)
+        self.sample = self.theano_rng.binomial(size=self.input.shape,n=1,p=self.z)
+    
 
 
