@@ -100,6 +100,7 @@ class dA(object):
 		self.z = self.get_reconstructed_input(self.h)
 		self.L = -T.sum(self.input * T.log(self.z) + (1 - self.input) * T.log(1 - self.z), axis=1)
 		self.cost = T.mean(self.L)
+		self.sample = self.theano_rng.binomial(size=self.input.shape,n=1,p=self.input)
 	
 
 

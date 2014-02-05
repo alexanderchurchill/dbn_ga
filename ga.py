@@ -232,7 +232,7 @@ class GA(object):
         sgd_optimizer(self.dA.params,[self.dA.input],self.cost,train_set,lr=0.1,num_epochs=200)
 
     def build_sample_dA():
-        self.sample_dA = theano.function([self.dA.input],self.z)
+        self.sample_dA = theano.function([self.dA.input],self.dA.sample)
 
     def sample_RBM(self,k=20):
         v,v_sample,updates = self.RBM.sample_RBM(k=k)
