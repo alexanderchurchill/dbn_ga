@@ -19,12 +19,12 @@ def ensure_dir(f):
 class LeftOnes(object):
     """docstring for LeftOnes"""
 
-    def __init__(self):
+    def __init__(self,corruption_level=0.2):
         super(LeftOnes, self).__init__()
         print self
         self.test = 5
         self.dA = dA(n_visible=20,n_hidden=50)
-        self.dA.build_dA(0.2)
+        self.dA.build_dA(corruption_level)
         self.build_sample_dA()
         
     def fitness(self,string):
@@ -66,6 +66,7 @@ class LeftOnes(object):
         distances = [[distance.hamming(population[k],sample[k][0]) for k in range(len(sample))]]
         # pdb.set_trace()
         for i in range(number_of_trials):
+            print "trial:",i
             new_sample = [lo.sample_dA([j]) for j in population]
             new_sample_fitnesses = ar(lo.fitness_many([j[0] for j in new_sample]))
             new_difference = new_sample_fitnesses - original_fitnesses
@@ -86,7 +87,9 @@ class LeftOnes(object):
         "differences_in_fitness":d,
         "distances":dist,
         "no_trials":no_trials,
-        "corruption_level":corruption_level
+        "corruption_level":corruption_level,
+        "all_strings":all_strings,
+        "good_strings":good_strings
         }
         pickle.dump(data,open("results/autoencoder/{0}.pkl".format(name),"wb"))
         return data
@@ -105,8 +108,9 @@ if __name__ == '__main__':
     # plt.hist(lo.fitness_many(all_strings))
     # plt.show()
     # f,d,dist = lo.calculate_changes_in_fitness(all_strings,10)
-    lo = LeftOnes()
-    data =lo.experiment("c-0.2",no_trials=100,corruption_level=0.2)
+    c_level = 0.00
+    lo = LeftOnes(corruption_level=c_level)
+    data =lo.experiment("c-{0}".format(c_level),no_trials=100,corruption_level=c_level)
     # t= Test()
 
     # data=lo.fitness_many(all_strings)
