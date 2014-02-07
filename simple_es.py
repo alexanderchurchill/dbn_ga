@@ -118,9 +118,9 @@ class ES(object):
             if w > knapsack.capacities[i]:
                 over += (w - knapsack.capacities[i])
         if over > 0:
-            return -over,
+            return -over
         else:
-            return np.sum(np.array(knapsack.values)*individual.genotype),
+            return np.sum(np.array(knapsack.values)*individual.genotype)
 
     def evaluate_population(self,population,params=None):
         for p in population:
@@ -217,7 +217,43 @@ class ES(object):
         print("-- End of (successful) evolution --")
         return parent
 
+class RandomSearch(ES):
+    """docstring for RandomSearch"""
+    def __init__(self,knapsack_file="weing1.pkl"):
+        super(RandomSearch, self).__init__(knapsack_file="weing1.pkl")
+        self.solutions = []
+        print knapsack_file
 
+    def run(self,experiment_name,trials):
+        mean = []
+        min = []
+        max = []
+        for i in range(trials):
+            individual = self.create_individual(self.N)
+            individual.fitness = self.fitness_function(individual,self.knapsack)
+            self.solutions.append(individual)
+            if i% 100 == 0:
+                all_fitnesses = [s.fitness for s in self.solutions]
+                mean.append(np.mean(all_fitnesses))
+                max.append(np.max(all_fitnesses))
+                min.append(np.min(all_fitnesses))
+        self.solutions = sorted(self.solutions,key = lambda s:s.fitness)
+        self.solutions.reverse()
+        all_fitnesses = [s.fitness for s in self.solutions]
+        print "max", np.max(all_fitnesses)
+        print "min", np.min(all_fitnesses)
+        print "mean", np.mean(all_fitnesses)
+        ensure_dir("results/random/easy_knapsack/")
+        np.savetxt("results/random/easy_knapsack/means_{0}".format(experiment_name),mean)
+        np.savetxt("results/random/easy_knapsack/max_{0}".format(experiment_name),max)
+        np.savetxt("results/random/easy_knapsack/min_{0}".format(experiment_name),min)
+
+
+
+        
 if __name__ == "__main__":
-    e = ES(knapsack_file="weing1.pkl")
-    e.run_mu_plus_lambda()
+    # e = ES(knapsack_file="weing1.pkl")
+    # e.run_mu_plus_lambda()
+    for i in range(0,10):
+        r = RandomSearch(knapsack_file="weing1.pkl")
+        r.run(i,100000)
