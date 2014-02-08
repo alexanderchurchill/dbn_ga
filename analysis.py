@@ -95,7 +95,7 @@ if __name__ == "__main__":
     #     f,m=e.analyse()
     #     # plt.plot(np.mean(f,axis=1))
     #     mean_max = np.mean(f,axis=1)
-    #     mean_mean = np.mean(f,axis=1)
+    #     mean_mean = np.mean(m,axis=1)
     #     # plt.show()
     #     generations = len(m)
     #     x = range(0,100000+1,100000/(generations-1))
@@ -112,7 +112,7 @@ if __name__ == "__main__":
     #     e = Results(exp,no_runs=10,start=0,end=10)
     #     f,m=e.analyse_random()
     #     mean_max = np.mean(f,axis=1)
-    #     mean_mean = np.mean(f,axis=1)
+    #     mean_mean = np.mean(m,axis=1)
     #     # plt.show()
     #     generations = len(m)
     #     x = range(0,100000+1,100000/(generations-1))
@@ -137,7 +137,7 @@ if __name__ == "__main__":
         e = Results(exp,no_runs=10,start=0,end=10)
         f,m=e.analyse_auto_encoder()
         mean_max = np.mean(f,axis=1)[0:11]
-        mean_mean = np.mean(f,axis=1)[0:11]
+        mean_mean = np.mean(m,axis=1)[0:11]
         # plt.show()
         generations = len(mean_max)
         x = range(0,100000+1,100000/(generations-1))
