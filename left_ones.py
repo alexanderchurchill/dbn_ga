@@ -1,4 +1,4 @@
-import random,pickle
+import random,pickle,copy
 import numpy as np
 import matplotlib.pylab as plt
 from rbm import *
@@ -11,6 +11,7 @@ import pdb
 import distance
 import os,sys
 from ga import KnapsackData
+
 def ensure_dir(f):
     d = os.path.dirname(f)
     if not os.path.exists(d):
@@ -26,7 +27,23 @@ class LeftOnes(object):
         self.dA = dA(n_visible=20,n_hidden=50)
         self.dA.build_dA(corruption_level)
         self.build_sample_dA()
-        
+
+    def weighted_random_choice(self,population,fitness_sum):
+        pick = random.uniform(0, fitness_sum)
+        current = 0
+        for chromosome in population:
+            current += self.fitness(chromosome)
+            if current > pick:
+                return copy.deepcopy(chromosome)
+
+    def get_new_population_rw(self,population, pop_size=None):
+        if pop_size == None:
+            pop_size = len(population)
+        sum_fitnesses = sum(self.fitness_many(population))
+        new_population = [self.weighted_random_choice(population,sum_fitnesses)
+                            for p in range(pop_size)]
+        return population
+
     def fitness(self,string):
         fitness = sum(string[0:len(string)/2]) - sum(string[len(string)/2:])
         return fitness
@@ -38,7 +55,7 @@ class LeftOnes(object):
         [random.choice([0,1]) for i in range(l)]
 
     def get_good_strings(self,strings,lim=20):
-        print strings[0:5]
+        # print strings[0:5]
         fitnesses =  [self.fitness(s) for s in strings]
         # print fitnesses[0:10]
         sorted_fitnesses = sorted(range(len(fitnesses)), key=lambda k: fitnesses[k])
@@ -133,7 +150,7 @@ class LeftOnes(object):
         self.build_sample_dA()
         all_strings,good_strings=self.generate_good_strings(pop_size,genome_length,population_limit)
         self.train_dA(ar(good_strings),corruption_level=corruption_level,num_epochs=50,lr=lr)
-        sampled_population = [lo.sample_dA([i]) for i in all_strings]
+        sampled_population = [lo.sample_dA([i]) for i in self.get_new_population_rw(all_strings)]
         original_fitnesses,sample_fitnesses,differences,distances = self.get_statistics(all_strings,sampled_population)
         data = {
         "original":original_fitnesses,
@@ -148,8 +165,8 @@ class LeftOnes(object):
         print "{0},{1},{2}\n".format(np.mean(original_fitnesses),np.min(original_fitnesses),np.max(original_fitnesses))
         print "{0},{1},{2}\n".format(np.mean(sample_fitnesses),np.min(sample_fitnesses),np.max(sample_fitnesses))
         for iteration in range(0,trials):
-            population = [z[0] for z in sampled_population]
-            if online_training:
+            population = self.get_new_population_rw([z[0] for z in sampled_population])
+            if online_training == False:
                 self.dA = dA(n_visible=genome_length,n_hidden=50)
                 self.dA.build_dA(corruption_level)
                 self.build_sample_dA()
