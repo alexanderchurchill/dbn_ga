@@ -1,5 +1,7 @@
 import random,pickle,copy
 import numpy as np
+import matplotlib as mpl
+mpl.use('Agg')
 import matplotlib.pylab as plt
 from rbm import *
 from denoising_autoencoder import dA
