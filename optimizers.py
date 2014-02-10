@@ -10,7 +10,7 @@ import os
 import pdb
 
 
-def sgd_optimizer(p,inputs,costs,train_set,updates_old=None,monitor=None,consider_constant=[],lr=0.001,num_epochs=300,save=False,output_folder=None):
+def sgd_optimizer(p,inputs,costs,train_set,updates_old=None,monitor=None,consider_constant=[],lr=0.001,num_epochs=300,save=False,output_folder=None,print_fn=None):
   '''SGD optimizer with a similar interface to hf_optimizer.
   p: list of params wrt optimization is performed
   cost: theano scalar defining objective function
@@ -25,7 +25,7 @@ def sgd_optimizer(p,inputs,costs,train_set,updates_old=None,monitor=None,conside
   g = T.grad(costs,p,consider_constant=consider_constant)
   updates = dict((i, i - lr*j) for i, j in zip(p, g))
   if updates_old:
-    updates_old.update(updates)
+    updates_old.update(updates) 
   else:
     updates_old = {}
     updates_old.update(updates)
@@ -38,6 +38,10 @@ def sgd_optimizer(p,inputs,costs,train_set,updates_old=None,monitor=None,conside
     for u in xrange(num_epochs):
       cost = []
       for i in train_set.iterate(True): 
+        print 'Printing input'
+        print i
+        print 'Mask'
+        print print_fn(*i)
         cost.append(f(*i))
       print 'update %i, cost=' %(u+1), numpy.mean(cost, axis=0)
       this_cost = numpy.absolute(numpy.mean(cost, axis=0))
