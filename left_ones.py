@@ -218,7 +218,7 @@ if __name__ == '__main__':
     lim_percentage=int(args[2])
     lim=int(args[3])
     trials=10
-    corruption_level=0.1
+    corruption_level=0.0
     num_epochs=int(args[4])
     lr = float(args[5])
     online_training=int(args[6])
