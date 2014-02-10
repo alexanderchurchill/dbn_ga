@@ -84,7 +84,8 @@ class dA(object):
        """
        mask = self.theano_rng.binomial(size=input.shape, n=1, p=1 - corruption_level) #* input
        idx = theano.where(mask==1)
-       return input[idx] = 1 - input[idx]
+       input[idx] = 1 - input[idx]
+       return input
 
     def get_hidden_values(self, input):
         """ Computes the values of the hidden layer """
