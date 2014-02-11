@@ -11,7 +11,7 @@ import pdb
 
 
 def sgd_optimizer(p,inputs,costs,train_set,updates_old=None,monitor=None,consider_constant=[],lr=0.001,
-                  num_epochs=300,save=False,output_folder=None,):
+                  num_epochs=300,save=False,output_folder=None,iteration=0):
   '''SGD optimizer with a similar interface to hf_optimizer.
   p: list of params wrt optimization is performed
   cost: theano scalar defining objective function
@@ -48,11 +48,11 @@ def sgd_optimizer(p,inputs,costs,train_set,updates_old=None,monitor=None,conside
         if save:
           best_params = [i.get_value().copy() for i in p]
           if not output_folder:
-            cPickle.dump(best_params,open('best_params.pickle','w'))
+            cPickle.dump(best_params,open('best_params_{0}.pickle'.format(iteration),'w'))
           else:
             if not os.path.exists(output_folder):
               os.makedirs(output_folder)
-            save_path = os.path.join(output_folder,'best_params.pickle')
+            save_path = os.path.join(output_folder,'best_params_{0}.pickle'.format(iteration))
             cPickle.dump(best_params,open(save_path,'w'))
       sys.stdout.flush()
 

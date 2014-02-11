@@ -245,12 +245,13 @@ class MDimKnapsack(GA):
         super(MDimKnapsack, self).__init__()
         creator.create("FitnessMax", base.Fitness, weights=(1.0,))
         creator.create("Individual", list, fitness=creator.FitnessMax)
-        self.pop_size = 10000
+        self.pop_size = 100
         self.mut_rate = 1.0
         self.cross_rate = 0.2
-        self.generations = 20
+        self.generations = 2000
 
         self.knapsack = pickle.load(open(knapsack_file))
+        self.knapsack.capacities = [[2000]]
         self.N = int(self.knapsack.items)
         self.toolbox = base.Toolbox()
         # Attribute generator
@@ -403,6 +404,8 @@ class Experiment(object):
                 self.ga = MDimKnapsack("weing8.pkl")
             elif test == "knapsack_400":
                 self.ga = MDimKnapsack("knapsack_400.pkl")
+            elif test == "knapsack_500":
+                self.ga = MDimKnapsack("knapsack_500.pkl")
 
     def run(self,test,ga):
         for i in range(self.start,self.end):
@@ -413,7 +416,7 @@ class Experiment(object):
             self.ga.run(path = path,experiment=i)
 
 if __name__ == "__main__":
-    name = "knapsack_400_p_10000"
-    test = "knapsack_400"
+    name = "knapsack_c500_p_100"
+    test = "knapsack_500"
     e = Experiment(name,no_runs=10,start=0,end=10,test=test)
     e.run(test=test,ga=None)

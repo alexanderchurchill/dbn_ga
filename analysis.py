@@ -86,10 +86,10 @@ class Results(object):
 if __name__ == "__main__":
     experiment_results = []
     for exp,label in [  
-                        ["knapsack_hard_p_100","ga_100"],
-                        ["knapsack_hard_p_500","ga_500"],
-                        ["knapsack_hard_p_1000","ga_1000"],
-                        ["knapsack_hard_p_10000","ga_10000"],
+                        ["knapsack_400_p_100","ga_100"],
+                        ["knapsack_400_p_200","ga_200"],
+                        ["knapsack_400_p_500","ga_500"],
+                        ["knapsack_400_p_1000","ga_1000"],
                     ]:
         e = Results(exp,no_runs=10,start=0,end=10)
         f,m=e.analyse()
@@ -109,25 +109,25 @@ if __name__ == "__main__":
             "x_axis":x,
             "line":"-"
             })
-    for exp,label in [  
-                        ["hard_knapsack","random"],
-                    ]:
-        e = Results(exp,no_runs=10,start=0,end=10)
-        f,m=e.analyse_random()
-        mean_max = np.mean(f,axis=1)
-        mean_mean = np.mean(m,axis=1)
-        # plt.show()
-        generations = len(m)
-        x = range(0,200000+1,200000/(generations-1))
-        # x = x[0:len(x)-1]
-        # plt.plot(x,mean_max[0:generations])
-        experiment_results.append({
-            "label":label,
-            "mean_max":mean_max[0:generations],
-            "mean_mean":mean_max[0:generations],
-            "x_axis":x[0:len(x)-1],
-            "line":"-x",
-            })
+    # for exp,label in [  
+    #                     ["hard_knapsack","random"],
+    #                 ]:
+    #     e = Results(exp,no_runs=10,start=0,end=10)
+    #     f,m=e.analyse_random()
+    #     mean_max = np.mean(f,axis=1)
+    #     mean_mean = np.mean(m,axis=1)
+    #     # plt.show()
+    #     generations = len(m)
+    #     x = range(0,200000+1,200000/(generations-1))
+    #     # x = x[0:len(x)-1]
+    #     # plt.plot(x,mean_max[0:generations])
+    #     experiment_results.append({
+    #         "label":label,
+    #         "mean_max":mean_max[0:generations],
+    #         "mean_mean":mean_max[0:generations],
+    #         "x_axis":x[0:len(x)-1],
+    #         "line":"-x",
+    #         })
 
     # plt.clf()
     # for e in experiment_results:
@@ -159,26 +159,26 @@ if __name__ == "__main__":
     # plt.legend(loc="lower right")
     # plt.show()
 
-    for exp,label in [  
-                        ["knapsack_105_items_all_maxs_10000_0_100_0.1_True","denoiser_1"],
-                        ["knapsack_105_items_all_maxs_10000_0_25_0.1_False","denoiser_2"],
-                        ["knapsack_105_items_all_maxs_1000_0_50_0.01_False","denoiser_3"]
-                    ]:
-        e = np.loadtxt("sweeps/files/averaged/{0}.dat".format(exp))
-        mean_max = np.mean(e,axis=1)
-        # mean_mean = np.mean(m,axis=1)
-        # plt.show()
-        generations = len(mean_max)
-        x = range(0,200000+1,200000/(generations-1))
-        # x = x[0:len(x)-1]
-        # plt.plot(x,mean_max[0:generations])
-        experiment_results.append({
-            "label":label,
-            "mean_max":mean_max[0:generations],
-            # "mean_mean":mean_max[0:generations],
-            "x_axis":x[0:len(x)],
-            "line":"--"
-            })
+    # for exp,label in [  
+    #                     ["knapsack_105_items_all_maxs_10000_0_100_0.1_True","denoiser_1"],
+    #                     ["knapsack_105_items_all_maxs_10000_0_25_0.1_False","denoiser_2"],
+    #                     ["knapsack_105_items_all_maxs_1000_0_50_0.01_False","denoiser_3"]
+    #                 ]:
+    #     e = np.loadtxt("sweeps/files/averaged/{0}.dat".format(exp))
+    #     mean_max = np.mean(e,axis=1)
+    #     # mean_mean = np.mean(m,axis=1)
+    #     # plt.show()
+    #     generations = len(mean_max)
+    #     x = range(0,200000+1,200000/(generations-1))
+    #     # x = x[0:len(x)-1]
+    #     # plt.plot(x,mean_max[0:generations])
+    #     experiment_results.append({
+    #         "label":label,
+    #         "mean_max":mean_max[0:generations],
+    #         # "mean_mean":mean_max[0:generations],
+    #         "x_axis":x[0:len(x)],
+    #         "line":"--"
+    #         })
     for e in experiment_results:
         print "plotting:",e["label"]
         plt.plot(e["x_axis"],e["mean_max"],e["line"],label=e["label"])

@@ -100,7 +100,6 @@ class dA(object):
         return  T.nnet.sigmoid(T.dot(hidden, self.W.T) + self.bv)
 
     def build_dA(self,corruption_level):
-
         self.tilde_input = self.get_corrupted_input(self.input, corruption_level)
         self.h = self.get_hidden_values(self.tilde_input)
         self.z = self.get_reconstructed_input(self.h)

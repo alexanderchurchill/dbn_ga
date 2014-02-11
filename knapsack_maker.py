@@ -59,10 +59,11 @@ def read_knap_for_class(number=100):
                 knap.append([id,weight,value])
                 values.append(value)
                 weights.append(weight)
-    k=KnapsackData("knapsack_"+str(number), 1, number, values, [1500], [weights])
+    k=KnapsackData("knapsack_"+str(number), 1, number, values, [2000], [weights])
     pickle.dump(k,open("knapsack_"+str(number)+".pkl","wb"))
     return knap
 
 #k = read_knap()
 if __name__ == '__main__':
-    read_knap_for_class(400)
+    # write(500,weight_range,value_range)
+    read_knap_for_class(500)

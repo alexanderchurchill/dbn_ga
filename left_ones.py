@@ -71,13 +71,14 @@ class LeftOnes(object):
         sorted_fitnesses.reverse()
         return strings,[strings[i] for i in sorted_fitnesses[0:lim]]
 
-    def train_dA(self,data,corruption_level=0.2,num_epochs=200,lr=0.1):
+    def train_dA(self,data,corruption_level=0.2,num_epochs=200,lr=0.1,output_folder="",iteration=0):
         train_data = data
         #print_var = theano.printing.Print()(self.dA.input)
         #print_fn = theano.function([self.dA.input],print_var)
         # pdb.set_trace()
         train_set = SequenceDataset(train_data,batch_size=20,number_batches=None)
-        sgd_optimizer(self.dA.params,[self.dA.input],self.dA.cost,train_set,lr=lr,num_epochs=num_epochs,)
+        sgd_optimizer(self.dA.params,[self.dA.input],self.dA.cost,train_set,lr=lr,
+                      num_epochs=num_epochs,save=True,output_folder=output_folder,iteration=iteration)
 
     def build_sample_dA(self):  
         self.sample_dA = theano.function([self.dA.input],self.dA.sample)
@@ -144,18 +145,20 @@ class LeftOnes(object):
         online_training=False,
         pickle_data=False,
         max_evaluations=200000):
+        results_path = "results/autoencoder/{0}/".format(name)
+        ensure_dir(results_path)
         trials = max_evaluations/pop_size
         population_limit = lim
         if lim_percentage > 0:
             population_limit = int(pop_size*(lim_percentage/100.0))
             print "population_limit:",population_limit
             print "{0}*({1}/100.0) = {2}".format(pop_size,lim_percentage,int(pop_size*(lim_percentage/100.0)))
-        fitfile = open("{0}_fitnesses.dat".format(name),"w")
+        fitfile = open("{0}fitnesses.dat".format(results_path),"w")
         self.dA = dA(n_visible=genome_length,n_hidden=50)
         self.dA.build_dA(corruption_level)
         self.build_sample_dA()
         all_strings,good_strings=self.generate_good_strings(pop_size,genome_length,population_limit)
-        self.train_dA(ar(good_strings),corruption_level=corruption_level,num_epochs=50,lr=lr)
+        self.train_dA(ar(good_strings),corruption_level=corruption_level,num_epochs=50,lr=lr,output_folder=results_path,iteration=0)
         sampled_population = [lo.sample_dA([i]) for i in self.get_new_population_rw(all_strings)]
         original_fitnesses,sample_fitnesses,differences,distances = self.get_statistics(all_strings,sampled_population)
         data = {
@@ -177,7 +180,7 @@ class LeftOnes(object):
                 self.dA.build_dA(corruption_level)
                 self.build_sample_dA()
             good_strings,good_strings_fitnesses=self.get_good_strings(population,population_limit)
-            self.train_dA(ar(good_strings),corruption_level=corruption_level,num_epochs=num_epochs,lr=lr)
+            self.train_dA(ar(good_strings),corruption_level=corruption_level,num_epochs=num_epochs,lr=lr,output_folder=results_path,iteration=iteration+1)
             sampled_population = [lo.sample_dA([i]) for i in population]
             original_fitnesses,sample_fitnesses,differences,distances = self.get_statistics(population,sampled_population)
             data = {
@@ -219,11 +222,10 @@ if __name__ == '__main__':
     args = sys.argv
     pop_size=int(args[1])
     print pop_size
-    genome_length=105
+    genome_length=500
     lim_percentage=int(args[2])
     lim=int(args[3])
     trials=10
-    corruption_level=1.0
     num_epochs=int(args[4])
     lr = float(args[5])
     online_training=int(args[6])
@@ -232,13 +234,14 @@ if __name__ == '__main__':
     else:
         online_training = True
     pickle_data=False
+    corruption_level=float(args[7])
     for i in range(0,10):
-        for lim_percentage in [20]:
+        for lim_percentage in [10,20,-20]:
             if lim_percentage < 0:
                 lim_percentage = 0
                 lim = 20
-            name = "knapsack_105_items_{0}_{1}_{2}_{3}_{4}_{5}".format(pop_size,lim_percentage,num_epochs,lr,online_training,i)
-            lo = ACSKnapsack(corruption_level=corruption_level,knapsack_file="weing8.pkl")
+            name = "knapsack_500_items_{0}_{1}_{2}_{3}_{4}_{5}_{6}".format(pop_size,lim_percentage,num_epochs,lr,online_training,corruption_level,i)
+            lo = ACSKnapsack(corruption_level=corruption_level,knapsack_file="knapsack_500.pkl")
             # data =lo.experiment("c-{0}".format(c_level),no_trials=100,corruption_level=c_level)
             # t= Test()
             lo.iterative_algorithm(name,
