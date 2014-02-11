@@ -82,12 +82,13 @@ class dA(object):
                this will produce an array of 0s and 1s where 1 has a probability of
                1 - ``corruption_level`` and 0 with ``corruption_level``
        """
-       self.mask = self.theano_rng.binomial(size=input.shape, n=1, p=corruption_level) 
+       mask = self.theano_rng.binomial(size=input.shape, n=1, p=corruption_level,dtype='int8') 
+       input_int = theano.tensor.cast(input,'int8')
        #mask = theano.printing.Print('Printing the mask')(mask)
-       idx = self.mask[:,:]==1
+       #idx = self.mask[:,:]==1
        #idx = theano.printing.Print()(idx)
-       input_flip = T.set_subtensor(input[idx],1 - input[idx])
-       input_flip = theano.printing.Print('Printing flipped input')(input_flip)
+       input_flip = input_int^mask
+       #input_flip = theano.printing.Print('Printing flipped input')(input_flip)
        return input_flip
 
     def get_hidden_values(self, input):

@@ -73,12 +73,11 @@ class LeftOnes(object):
 
     def train_dA(self,data,corruption_level=0.2,num_epochs=200,lr=0.1):
         train_data = data
-        mask_out = theano.function([self.dA.input],self.dA.mask)
         #print_var = theano.printing.Print()(self.dA.input)
         #print_fn = theano.function([self.dA.input],print_var)
         # pdb.set_trace()
         train_set = SequenceDataset(train_data,batch_size=20,number_batches=None)
-        sgd_optimizer(self.dA.params,[self.dA.input],self.dA.cost,train_set,lr=lr,num_epochs=num_epochs,print_fn = mask_out)
+        sgd_optimizer(self.dA.params,[self.dA.input],self.dA.cost,train_set,lr=lr,num_epochs=num_epochs,)
 
     def build_sample_dA(self):  
         self.sample_dA = theano.function([self.dA.input],self.dA.sample)
@@ -148,7 +147,9 @@ class LeftOnes(object):
         trials = max_evaluations/pop_size
         population_limit = lim
         if lim_percentage > 0:
-            population_limit = pop_size/lim_percentage
+            population_limit = int(pop_size*(lim_percentage/100.0))
+            print "population_limit:",population_limit
+            print "{0}*({1}/100.0) = {2}".format(pop_size,lim_percentage,int(pop_size*(lim_percentage/100.0)))
         fitfile = open("{0}_fitnesses.dat".format(name),"w")
         self.dA = dA(n_visible=genome_length,n_hidden=50)
         self.dA.build_dA(corruption_level)
@@ -217,6 +218,7 @@ class ACSKnapsack(LeftOnes):
 if __name__ == '__main__':
     args = sys.argv
     pop_size=int(args[1])
+    print pop_size
     genome_length=105
     lim_percentage=int(args[2])
     lim=int(args[3])
@@ -231,7 +233,7 @@ if __name__ == '__main__':
         online_training = True
     pickle_data=False
     for i in range(0,10):
-        for lim_percentage in [10,20,-20]:
+        for lim_percentage in [20]:
             if lim_percentage < 0:
                 lim_percentage = 0
                 lim = 20

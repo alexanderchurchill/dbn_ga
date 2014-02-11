@@ -243,10 +243,10 @@ class RandomSearch(ES):
         print "max", np.max(all_fitnesses)
         print "min", np.min(all_fitnesses)
         print "mean", np.mean(all_fitnesses)
-        ensure_dir("results/random/easy_knapsack/")
-        np.savetxt("results/random/easy_knapsack/means_{0}".format(experiment_name),mean)
-        np.savetxt("results/random/easy_knapsack/max_{0}".format(experiment_name),max)
-        np.savetxt("results/random/easy_knapsack/min_{0}".format(experiment_name),min)
+        ensure_dir("results/random/hard_knapsack/")
+        np.savetxt("results/random/hard_knapsack/means_{0}".format(experiment_name),mean)
+        np.savetxt("results/random/hard_knapsack/max_{0}".format(experiment_name),max)
+        np.savetxt("results/random/hard_knapsack/min_{0}".format(experiment_name),min)
 
 
 
@@ -255,5 +255,5 @@ if __name__ == "__main__":
     # e = ES(knapsack_file="weing1.pkl")
     # e.run_mu_plus_lambda()
     for i in range(0,10):
-        r = RandomSearch(knapsack_file="weing1.pkl")
-        r.run(i,100000)
+        r = RandomSearch(knapsack_file="weing8.pkl")
+        r.run(i,200000)

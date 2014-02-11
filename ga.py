@@ -73,7 +73,7 @@ class Genotypes(object):
 
     def get_and_save_top_x(self,x=0.2,path="experiments",experiment=0,generation=0):
         top_x = self.top_x_percent(x)
-        self.top_x_genotypes_to_file(top_x,path=path,experiment=experiment,generation=generation)
+        # self.top_x_genotypes_to_file(top_x,path=path,experiment=experiment,generation=generation)
 
 
     def top_x_genotypes_to_file(self,top_20,path="experiments",experiment=0,generation=0):
@@ -89,17 +89,17 @@ class GA(object):
 
     def __init__(self):
         super(GA, self).__init__()
-        self.pop_size = 100
+        self.pop_size = 1000
         self.mut_rate = 0.2
         self.cross_rate = 0.9
-        self.generations = 100
+        self.generations = 20
         self.tournament_size = 3
         self.N = 100
-        self.RBM = RBM(n_visible=105,n_hidden=50) 
-        self.dA = dA(n_visible=105,n_hidden=50)
-        self.dA.build_dA(0.2)
-        self.dA.build_sample_dA()
-        self.sample_RBM()
+        # self.RBM = RBM(n_visible=105,n_hidden=50) 
+        # self.dA = dA(n_visible=105,n_hidden=50)
+        # self.dA.build_dA(0.2)
+        # self.dA.build_sample_dA()
+        # self.sample_RBM()
         creator.create("FitnessMax", base.Fitness, weights=(1.0,))
         creator.create("Individual", list, fitness=creator.FitnessMax)
 
@@ -184,9 +184,9 @@ class GA(object):
             self.population_snapshots.append(copy.deepcopy(pop))
             self.genotypes_history.add_genotypes(pop)
             self.genotypes_history.get_and_save_top_x(0.2,"{0}experiment".format(path),experiment,g+1)
-            if len(self.genotypes_history.top_x) > 2000:
-                self.train_RBM()
-            fitnesses_file.write(str([i.fitness.values[0] for i in individuals]))
+            # if len(self.genotypes_history.top_x) > 2000:
+            #     self.train_RBM()
+            fitnesses_file.write(str([i.fitness.values[0] for i in pop]))
             fitnesses_file.write("\n")
         print("-- End of (successful) evolution --")
         self.save_fitnesses(self.population_snapshots,"{0}experiment".format(path),experiment)
@@ -245,10 +245,10 @@ class MDimKnapsack(GA):
         super(MDimKnapsack, self).__init__()
         creator.create("FitnessMax", base.Fitness, weights=(1.0,))
         creator.create("Individual", list, fitness=creator.FitnessMax)
-        self.pop_size = 500
+        self.pop_size = 10000
         self.mut_rate = 1.0
-        self.cross_rate = 0.0
-        self.generations = 5000
+        self.cross_rate = 0.2
+        self.generations = 20
 
         self.knapsack = pickle.load(open(knapsack_file))
         self.N = int(self.knapsack.items)
@@ -263,7 +263,7 @@ class MDimKnapsack(GA):
         # Operator registering
         self.toolbox.register("evaluate", self.fitness_function, knapsack = self.knapsack)
         self.toolbox.register("mate", tools.cxTwoPoints)
-        self.toolbox.register("mutate", self.mutate, indpb=float(1/self.N))
+        self.toolbox.register("mutate", self.mutate, indpb=float(1.0/self.N))
         self.toolbox.register("select", tools.selTournament, tournsize=self.tournament_size)
 
         self.genotypes_history = Genotypes(min=False)
@@ -281,11 +281,11 @@ class MDimKnapsack(GA):
         else:
             return np.sum(np.array(knapsack.values)*individual),
 
-    def mutate(self,individual, indpb = 0.01):
-        individual = np.array(individual).reshape(1,-1)
-        output = self.sample_from_RBM(np.array(individual))  
-        individual[:] = output[0][:]
-        return individual
+    # def mutate(self,individual, indpb = 0.01):
+    #     individual = np.array(individual).reshape(1,-1)
+    #     output = self.sample_from_RBM(np.array(individual))  
+    #     individual[:] = output[0][:]
+    #     return individual
 
 class Sphere(GA):
     def __init__(self):
@@ -401,14 +401,19 @@ class Experiment(object):
                 self.ga = MDimKnapsack("weing1.pkl")
             elif test == "knapsack_hard":
                 self.ga = MDimKnapsack("weing8.pkl")
+            elif test == "knapsack_400":
+                self.ga = MDimKnapsack("knapsack_400.pkl")
 
     def run(self,test,ga):
         for i in range(self.start,self.end):
+            self.ga = None
             self.set_experiment(test,ga)
             path = "results/{0}/".format(self.experiment_name)
             ensure_dir("{0}experiment_{1}/".format(path,i))
             self.ga.run(path = path,experiment=i)
 
 if __name__ == "__main__":
-    e = Experiment("knapsack_hard",no_runs=5,start=0,end=5,test="knapsack_hard")
-    e.run(test="knapsack_hard",ga=None)
+    name = "knapsack_400_p_10000"
+    test = "knapsack_400"
+    e = Experiment(name,no_runs=10,start=0,end=10,test=test)
+    e.run(test=test,ga=None)
