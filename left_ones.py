@@ -5,6 +5,7 @@ mpl.use('Agg')
 import matplotlib.pylab as plt
 from rbm import *
 from denoising_autoencoder import dA
+from deep_da import Deep_dA
 import theano
 from custom_dataset import SequenceDataset
 from optimizers import sgd_optimizer
@@ -26,9 +27,9 @@ class LeftOnes(object):
         super(LeftOnes, self).__init__()
         print self
         self.test = 5
-        self.dA = dA(n_visible=20,n_hidden=50)
+        #self.dA = dA(n_visible=20,n_hidden=50)
+        self.dA = Deep_dA(n_visible=20,n_hidden=[50,50])
         self.dA.build_dA(corruption_level)
-        self.build_sample_dA()
 
     def weighted_random_choice(self,population,fitness_sum,cumulative_dist):
         pick = random.uniform(0, fitness_sum)

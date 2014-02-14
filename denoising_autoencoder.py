@@ -108,6 +108,8 @@ class dA(object):
         self.l2 = abs(self.W**2).sum()
         self.cost = T.mean(self.L) + 0.01*self.l2
         self.sample = self.theano_rng.binomial(size=self.input.shape,n=1,p=self.z)
+
+
     
 
 
