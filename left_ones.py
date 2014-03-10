@@ -11,9 +11,10 @@ from custom_dataset import SequenceDataset
 from optimizers import sgd_optimizer
 from numpy import array as ar
 import pdb
-import distance
+#import distance
 import os,sys
 from ga import KnapsackData
+import io
 
 def ensure_dir(f):
     d = os.path.dirname(f)
@@ -268,9 +269,42 @@ class ACSKnapsack(LeftOnes):
         else:
             return np.sum(np.array(knapsack.values)*string)
         
+class MAXSAT(LeftOnes):
+    def __init__(self,):
+        pass
+
+    def setInstance(self, i):
+        self.readTestsuite(i)
+
+    def readTestsuite(self,i):
+        file = open('../benchmarks_maxsat/uf100/uf100-0'+str(i)+'.cnf', 'r')
+        dataStr = file.readlines()
+        #data = numpy.loadtxt('../benchmarks_maxsat/uf100/uf100-0'+str(i)+'.cnf')
+        
+        dataStr = dataStr[8:-3]
+        for i in xrange(len(dataStr)):
+            dataStr[i] = dataStr[i].strip().split(' ')[0:3]
+        self.data = numpy.array(dataStr,dtype=numpy.float)
+        
+        #dataStr = io.StringIO("".join(dataStr))
+        #self.data =  np.genfromtxt(dataStr, usecols = range(3))
+
+    def compFit(self, s):
+        sum = 0
+        for i in range(self.data.shape[0]):
+            neg = self.data[i] > 0
+            
+            sum += np.logical_not( np.logical_xor( int(s[abs(int(self.data[i,0]))-1]), neg[0])  ) or np.logical_not( np.logical_xor( int(s[abs(int(self.data[i,1]))-1]), neg[1])  ) or np.logical_not( np.logical_xor( int(s[abs(int(self.data[i,2]))-1]), neg[2])  )
+        return sum
 
 
 if __name__ == '__main__':
+    test = MAXSAT()
+    test.setInstance(1)
+    x = numpy.ones(100)
+    val = test.compFit(x)
+    print val
+    pdb.set_trace()
     # args = sys.argv
     # pop_size=int(args[1])
     # print pop_size
@@ -307,22 +341,22 @@ if __name__ == '__main__':
     #                                 lr = lr,
     #                                 online_training=online_training,
     #                                 pickle_data=False)
-    l = LeftOnes(corruption_level=0.1)
-    # l=ACSKnapsack(corruption_level=0.2,knapsack_file="weing8.pkl")
-    name= "l1_test"
-    l.iterative_algorithm(name,
-                        pop_size=1000,
-                        genome_length=100,
-                        lim_percentage=0,
-                        lim=20,
-                        trials=1,
-                        corruption_level=0.1,
-                        num_epochs=100,
-                        lr = 0.1,
-                        online_training=False,
-                        pickle_data=False,
-                        save_data=True,
-                        max_evaluations=10000)
+    # l = LeftOnes(corruption_level=0.1)
+    # # l=ACSKnapsack(corruption_level=0.2,knapsack_file="weing8.pkl")
+    # name= "l1_test"
+    # l.iterative_algorithm(name,
+    #                     pop_size=1000,
+    #                     genome_length=100,
+    #                     lim_percentage=0,
+    #                     lim=20,
+    #                     trials=1,
+    #                     corruption_level=0.1,
+    #                     num_epochs=100,
+    #                     lr = 0.1,
+    #                     online_training=False,
+    #                     pickle_data=False,
+    #                     save_data=True,
+    #                     max_evaluations=10000)
     # l=ACSKnapsack(corruption_level=0.1,knapsack_file="knapsack_500.pkl")
     # name= "l1_test"
     # l.iterative_algorithm(name,

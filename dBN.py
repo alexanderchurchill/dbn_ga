@@ -5,17 +5,17 @@ import theano.tensor as T
 import os
 from theano.tensor.shared_randomstreams import RandomStreams
 import pdb
+from rbm import RBM
 
 class Deep_dA(object):
     """
     Denoising Autoencoders
     """ 
     def __init__(self, input=None, n_visible=784, n_hidden=[500,500],
-        W=None, hbias=None, vbias=None, numpy_rng=None,theano_rng=None,squared_err=True):
+        W=None, hbias=None, vbias=None, numpy_rng=None,theano_rng=None):
         self.n_visible = n_visible
         self.n_hidden = n_hidden
         self.n_layers = len(n_hidden)
-        self.squared_err = squared_err
         assert (self.n_layers > 0)
         if numpy_rng is None:
             # create a number generator
@@ -99,12 +99,7 @@ class Deep_dA(object):
         self.L = -T.sum(self.input * T.log(self.z) + (1 - self.input) * T.log(1 - self.z), axis=1)
         #self.l1 = abs(self.W).sum()
         #self.l2 = abs(self.W**2).sum()
-        if not self.squared_err:
-          self.cost = T.mean(self.L) #+ 0.01*self.l2
-        else:
-          print 'Making squared error cost.'
-          cost = T.sum((self.z-self.x)**2,axis=1)
-          self.cost = T.mean(cost)
+        self.cost = T.mean(self.L) #+ 0.01*self.l2
 
 if __name__ == '__main__':
 

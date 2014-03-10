@@ -1,9 +1,9 @@
 import random,copy,os,pickle
 
-from deap import base
-from deap import creator
-from deap import tools
-from deap import benchmarks
+# from deap import base
+# from deap import creator
+# from deap import tools
+# from deap import benchmarks
 from rbm import RBM
 from optimizers import sgd_optimizer
 
